@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:taxi_app/src/screens/login_screen.dart';
+import 'package:taxi_app/src/screens/register_screen.dart';
 
 void main() => runApp(const MyApp());
 
@@ -9,17 +11,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Material App',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Material App Bar'),
-        ),
-        body: Center(
-          child: Container(
-            child: const Text('Hello World'),
-          ),
-        ),
-      ),
+      title: 'Client App',
+      initialRoute: 'login',
+      routes: {
+        'login': (_) => const LoginScreen(),
+        'register': (_) => const RegisterScreen(),
+      },
     );
   }
 }
