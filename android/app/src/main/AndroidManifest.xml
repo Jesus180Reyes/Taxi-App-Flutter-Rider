@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jesusreyes.taxi_app">
    <application
-        android:label="taxi_app"
+        android:label="Transporte Kariken"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
