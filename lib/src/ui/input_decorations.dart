@@ -23,7 +23,7 @@ class InputDecorations {
       labelStyle: const TextStyle(
         color: Colors.grey,
       ),
-      prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+      prefixIcon: (prefixIcon != null) ? Icon(prefixIcon) : null,
     );
   }
 }

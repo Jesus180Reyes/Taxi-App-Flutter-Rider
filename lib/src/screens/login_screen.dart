@@ -1,8 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:provider/provider.dart';
+import 'package:taxi_app/main.dart';
 import 'package:taxi_app/src/providers/login_form_provider.dart';
 import 'package:taxi_app/src/ui/input_decorations.dart';
+import 'package:taxi_app/src/widgets/toast.dart';
 import 'package:taxi_app/src/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -31,7 +37,7 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(height: 30),
                     ChangeNotifierProvider(
                       create: (_) => LoginFormProvider(),
-                      child: const _LoginForm(),
+                      child: _LoginForm(),
                     ),
                   ],
                 ),
@@ -39,16 +45,21 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(
                 height: 50,
               ),
-              const Text(
-                'Crear una Nueva Cuenta',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              TextButton(
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, 'register'),
+                child: const Text(
+                  'Crear una Nueva Cuenta',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
               const SizedBox(
                 height: 50,
-              )
+              ),
             ],
           ),
         ),
@@ -57,8 +68,10 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class _LoginForm extends StatelessWidget {
-  const _LoginForm({Key? key}) : super(key: key);
+  TextEditingController emailTextEditingController = TextEditingController();
+  TextEditingController passwordTextEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +82,7 @@ class _LoginForm extends StatelessWidget {
       child: Column(
         children: [
           TextFormField(
+            controller: emailTextEditingController,
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecorations.authInputDecoration(
@@ -90,19 +104,20 @@ class _LoginForm extends StatelessWidget {
             height: 30,
           ),
           TextFormField(
+            controller: passwordTextEditingController,
             obscureText: true,
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecorations.authInputDecoration(
               hintText: '*********',
-              labelText: 'Contrasena',
+              labelText: 'Contraseña',
               prefixIcon: Icons.lock_outline,
             ),
             onChanged: (value) => loginForm.password = value,
             validator: (value) {
               return (value != null && value.length >= 6)
                   ? null
-                  : 'La Contrasena debe ser mayor a 6 Caracteres';
+                  : 'La Contraseña debe ser mayor a 6 Caracteres';
             },
           ),
           const SizedBox(
@@ -112,7 +127,9 @@ class _LoginForm extends StatelessWidget {
             onPressed: () {
               (!loginForm.isValidForm())
                   ? null
-                  : Navigator.pushReplacementNamed(context, 'main');
+                  : loginAndAuthenticateUser(context);
+
+              // : Navigator.pushReplacementNamed(context, 'main');
             },
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -131,5 +148,34 @@ class _LoginForm extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void loginAndAuthenticateUser(BuildContext context) async {
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    final User? firebaseUser = (await firebaseAuth
+            .signInWithEmailAndPassword(
+      email: emailTextEditingController.text,
+      password: passwordTextEditingController.text,
+    )
+            .catchError((error) {
+      displayToastMessage('Error: ' + error.toString(), context);
+    }))
+        .user;
+
+    if (firebaseUser != null) {
+      userRef.child(firebaseUser.uid).once().then((DataSnapshot snapshot) {
+        if (snapshot.value != null) {
+          Navigator.pushReplacementNamed(context, 'main');
+          displayToastMessage('Inicio de Sesion Exitosamente', context);
+        } else {
+          firebaseAuth.signOut();
+          displayToastMessage(
+              'Este Correo No esta Registado, Crea Una Cuenta', context);
+        }
+      });
+    } else {
+      displayToastMessage(
+          'Upps Parece que Hubo un error, Vuelve a Intentarlo', context);
+    }
   }
 }
