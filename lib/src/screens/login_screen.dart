@@ -4,11 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:taxi_app/main.dart';
 import 'package:taxi_app/src/providers/login_form_provider.dart';
 import 'package:taxi_app/src/ui/input_decorations.dart';
-import 'package:taxi_app/src/widgets/toast.dart';
+import 'package:taxi_app/src/widgets/utilities/progress_dialog.dart';
+import 'package:taxi_app/src/widgets/utilities/toast.dart';
 import 'package:taxi_app/src/widgets/widgets.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -150,14 +152,22 @@ class _LoginForm extends StatelessWidget {
     );
   }
 
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   void loginAndAuthenticateUser(BuildContext context) async {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const ProgressDialog(
+              message: 'Iniciando Sesion, Porfavor Espera...');
+        },
+        barrierDismissible: false);
     final User? firebaseUser = (await firebaseAuth
             .signInWithEmailAndPassword(
       email: emailTextEditingController.text,
       password: passwordTextEditingController.text,
     )
             .catchError((error) {
+      Navigator.pop(context);
       displayToastMessage('Error: ' + error.toString(), context);
     }))
         .user;
@@ -166,16 +176,53 @@ class _LoginForm extends StatelessWidget {
       userRef.child(firebaseUser.uid).once().then((DataSnapshot snapshot) {
         if (snapshot.value != null) {
           Navigator.pushReplacementNamed(context, 'main');
-          displayToastMessage('Inicio de Sesion Exitosamente', context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              duration: Duration(seconds: 3),
+              content: Text(
+                'Inicio de Sesion Exitosamente😉',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+
+          // displayToastMessage('Inicio de Sesion Exitosamente', context);
+
         } else {
+          Navigator.pop(context);
+
           firebaseAuth.signOut();
-          displayToastMessage(
-              'Este Correo No esta Registado, Crea Una Cuenta', context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              duration: Duration(seconds: 3),
+              content: Text(
+                'Este Correo No esta Registrado, Crea una Cuenta',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
         }
       });
     } else {
-      displayToastMessage(
-          'Upps Parece que Hubo un error, Vuelve a Intentarlo', context);
+      Navigator.pop(context);
+
+      // displayToastMessage(
+      //     'Upps Parece que Hubo un error, Vuelve a Intentarlo', context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text(
+            'Upps Parece que Hubo un error, Vuelve a Intentarlo',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
     }
   }
 }

@@ -22,13 +22,14 @@ class MyApp extends StatelessWidget {
       title: 'Taxi Client App',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        scaffoldBackgroundColor: Colors.grey[300],
+        scaffoldBackgroundColor: Colors.grey[200],
       ),
-      initialRoute: 'login',
+      initialRoute: 'intro',
       routes: {
         'main': (_) => const MainScreen(),
         'login': (_) => const LoginScreen(),
         'register': (_) => const RegisterScreen(),
+        'intro': (_) => const IntroScreen(),
       },
     );
   }

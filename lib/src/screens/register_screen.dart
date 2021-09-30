@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:taxi_app/main.dart';
 import 'package:taxi_app/src/providers/register_form_provider.dart';
 import 'package:taxi_app/src/ui/input_decorations.dart';
+import 'package:taxi_app/src/widgets/utilities/progress_dialog.dart';
 import 'package:taxi_app/src/widgets/widgets.dart';
 
 class RegisterScreen extends StatelessWidget {
@@ -213,6 +214,13 @@ class RegisterForm extends StatelessWidget {
 
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   void registerNewUser(BuildContext context) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const ProgressDialog(
+              message: 'Creando Cuenta, Porfavor Espera...');
+        },
+        barrierDismissible: false);
     final User? firebaseUser =
         (await firebaseAuth.createUserWithEmailAndPassword(
       email: emailTextEditingController.text,
@@ -230,6 +238,30 @@ class RegisterForm extends StatelessWidget {
       };
       userRef.child(firebaseUser.uid).set(userDataMap);
       Navigator.pushReplacementNamed(context, 'main');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text(
+            'Cuenta Creada Exitosamente!!😊😊',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
+    } else {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 3),
+          content: Text(
+            'Upps Parece que Hubo un Problema con la Creacion de cuenta, Porfavor Vuelve a Intentarlo',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      );
     }
   }
 }
