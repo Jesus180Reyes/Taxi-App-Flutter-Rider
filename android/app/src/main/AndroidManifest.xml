@@ -1,11 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jesusreyes.taxi_app">
    <application
+   
         android:label="Transporte Kariken"
         android:icon="@mipmap/ic_launcher">
 
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyBD9L7UyOlq80DSFtEr_K0zLYPoVt5YjLg"/>
+               android:value="AIzaSyApwinFv_OIvuidlzMMGYOm830Cz7UVQqg"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
